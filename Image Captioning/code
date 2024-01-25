@@ -1,0 +1,39 @@
+import cv2
+import numpy as np
+from google.colab.patches import cv2_imshow
+from tensorflow.keras.applications.vgg16 import VGG16, preprocess_input, decode_predictions
+from tensorflow.keras.preprocessing.image import img_to_array, load_img
+
+# Load pre-trained VGG16 model
+model = VGG16(weights='imagenet')
+
+# Function to preprocess and predict image
+def predict_image(img):
+    img = cv2.resize(img, (224, 224))
+    img = img_to_array(img)
+    img = np.expand_dims(img, axis=0)
+    img = preprocess_input(img)
+
+    # Get model predictions
+    predictions = model.predict(img)
+    decoded_predictions = decode_predictions(predictions)[0]
+
+    # Extract top prediction
+    top_prediction = decoded_predictions[0]
+    return top_prediction[1], top_prediction[2]
+
+# Upload an image directly to Colab
+from google.colab import files
+
+uploaded = files.upload()
+image_path = list(uploaded.keys())[0]
+
+# Display the uploaded image
+img = cv2.imread(image_path)
+cv2_imshow(cv2.cvtColor(img, cv2.COLOR_BGR2RGB))
+
+# Predict the image
+image_name, confidence = predict_image(img)
+print(f"Image Name: {image_name}, Confidence: {confidence}")
+
+1368
